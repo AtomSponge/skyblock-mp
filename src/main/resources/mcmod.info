@@ -1,0 +1,16 @@
+[
+{
+  "modid": "skyblockmp",
+  "name": "Skyblock Multiplayer",
+  "description": "Serverside skyblock multiplayer mod",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["AtomSponge"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
