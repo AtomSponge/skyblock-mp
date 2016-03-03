@@ -1,5 +1,6 @@
 package com.github.atomsponge.skyblockmp;
 
+import com.github.atomsponge.skyblockmp.database.DatabaseManager;
 import com.github.atomsponge.skyblockmp.util.ConfigUtils;
 import com.github.atomsponge.skyblockmp.world.SkyblockWorldType;
 import com.github.atomsponge.skyblockmp.world.worldproviders.SkyblockEndWorldProvider;
@@ -26,6 +27,8 @@ public class SkyblockMp {
     private Logger logger;
     @Getter
     private Config config;
+    @Getter
+    private DatabaseManager databaseManager;
 
     private SkyblockWorldType skyblockWorldType;
 
@@ -39,6 +42,9 @@ public class SkyblockMp {
         } catch (IOException e) {
             throw new RuntimeException("Failed to load config", e);
         }
+
+        databaseManager = new DatabaseManager(this);
+        databaseManager.initialize();
     }
 
     @EventHandler

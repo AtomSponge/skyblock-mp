@@ -35,12 +35,23 @@ minecraft {
     version = "1.7.10-10.13.4.1558-1.7.10"
     runDir = "run"
 
+    srgExtra "PK: org/slf4j com/github/atomsponge/skyblockmp/libs/org/slf4j"
+
     replaceIn "Constants.java"
     replace "@VERSION@", project.version
 }
 
+configurations {
+    shade
+    compile.extendsFrom shade
+}
+
 dependencies {
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.6'
+    shade group: 'com.zaxxer', name: 'HikariCP', version: '2.3.13'
+    // I'd use slf4j-log4j12, but apparently Forge seems to be using an old version of log4j...
+    shade group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.18'
+    shade group: 'com.h2database', name: 'h2', version: '1.4.191'
 }
 
 processResources {
@@ -54,5 +65,14 @@ processResources {
 
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
+    }
+}
+
+jar {
+    // See https://forgegradle.readthedocs.org/en/FG_1.2/user-guide/shading/
+    configurations.shade.each {
+        dep -> from (project.zipTree(dep)) {
+            exclude 'META-INF', 'META-INF/**'
+        }
     }
 }
