@@ -1,11 +1,17 @@
 package com.github.atomsponge.skyblockmp;
 
 import com.github.atomsponge.skyblockmp.util.ConfigUtils;
+import com.github.atomsponge.skyblockmp.world.SkyblockWorldType;
+import com.github.atomsponge.skyblockmp.world.worldproviders.SkyblockEndWorldProvider;
+import com.github.atomsponge.skyblockmp.world.worldproviders.SkyblockHellWorldProvider;
+import com.github.atomsponge.skyblockmp.world.worldproviders.SkyblockSurfaceWorldProvider;
 import com.typesafe.config.Config;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import lombok.Getter;
+import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -21,6 +27,8 @@ public class SkyblockMp {
     @Getter
     private Config config;
 
+    private SkyblockWorldType skyblockWorldType;
+
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
@@ -31,5 +39,25 @@ public class SkyblockMp {
         } catch (IOException e) {
             throw new RuntimeException("Failed to load config", e);
         }
+    }
+
+    @EventHandler
+    public void init(FMLInitializationEvent event) {
+        registerWorldProviders();
+    }
+
+    private void registerWorldProviders() {
+        logger.info("Registering world type");
+        skyblockWorldType = new SkyblockWorldType();
+
+        logger.info("Removing old world providers");
+        for (int dimension : new int[]{-1, 0, 1}) {
+            DimensionManager.unregisterProviderType(dimension);
+        }
+
+        logger.info("Registering custom world providers");
+        DimensionManager.registerProviderType(-1, SkyblockHellWorldProvider.class, true);
+        DimensionManager.registerProviderType(0, SkyblockSurfaceWorldProvider.class, true);
+        DimensionManager.registerProviderType(1, SkyblockEndWorldProvider.class, true);
     }
 }
