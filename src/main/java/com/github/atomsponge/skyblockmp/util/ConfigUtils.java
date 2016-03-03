@@ -3,8 +3,7 @@ package com.github.atomsponge.skyblockmp.util;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigRenderOptions;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -14,8 +13,8 @@ import java.io.PrintWriter;
 /**
  * @author AtomSponge
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class ConfigUtils {
+@UtilityClass
+public class ConfigUtils {
     /**
      * Loads a {@link com.typesafe.config.Config} from a specified {@link java.io.File}.
      * Creates the file with the default values if it does not exist.
