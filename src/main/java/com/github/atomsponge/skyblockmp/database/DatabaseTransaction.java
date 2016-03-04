@@ -34,9 +34,9 @@ public class DatabaseTransaction {
             if (autoClose) {
                 connection.close();
             }
-        } catch (SQLException e) {
+        } catch (Throwable throwable) {
             fail();
-            databaseManager.getMod().getLogger().log(Level.ERROR, "An error occurred while executing database transaction", e);
+            databaseManager.getMod().getLogger().log(Level.ERROR, "An error occurred while executing database transaction", throwable);
 
             if (connection != null) {
                 databaseManager.getMod().getLogger().info("Trying to roll back changes...");
@@ -48,7 +48,7 @@ public class DatabaseTransaction {
             }
 
             if (callback != null) {
-                callback.failure(e);
+                callback.failure(throwable);
             }
         } finally {
             if (successful && callback != null) {

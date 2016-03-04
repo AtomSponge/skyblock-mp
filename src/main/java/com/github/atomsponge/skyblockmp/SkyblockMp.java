@@ -1,6 +1,8 @@
 package com.github.atomsponge.skyblockmp;
 
 import com.github.atomsponge.skyblockmp.database.DatabaseManager;
+import com.github.atomsponge.skyblockmp.grid.Island;
+import com.github.atomsponge.skyblockmp.grid.Position;
 import com.github.atomsponge.skyblockmp.util.ConfigUtils;
 import com.github.atomsponge.skyblockmp.world.SkyblockWorldType;
 import com.github.atomsponge.skyblockmp.world.worldproviders.SkyblockEndWorldProvider;
@@ -11,8 +13,10 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import lombok.Getter;
 import net.minecraftforge.common.DimensionManager;
+import org.apache.commons.lang3.CharUtils;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
@@ -43,13 +47,22 @@ public class SkyblockMp {
             throw new RuntimeException("Failed to load config", e);
         }
 
-        databaseManager = new DatabaseManager(this);
-        databaseManager.initialize();
+        try {
+            databaseManager = new DatabaseManager(this);
+            databaseManager.initialize();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize database manager", e);
+        }
     }
 
     @EventHandler
     public void init(FMLInitializationEvent event) {
         registerWorldProviders();
+    }
+
+    @EventHandler
+    public void stop(FMLServerStoppingEvent event) {
+        databaseManager.shutdown();
     }
 
     private void registerWorldProviders() {

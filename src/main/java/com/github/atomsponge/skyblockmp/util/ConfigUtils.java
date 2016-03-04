@@ -7,6 +7,7 @@ import lombok.experimental.UtilityClass;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -15,6 +16,8 @@ import java.io.PrintWriter;
  */
 @UtilityClass
 public class ConfigUtils {
+    private static final ConfigRenderOptions RENDER_OPTIONS = ConfigRenderOptions.defaults().setJson(false).setOriginComments(false);
+
     /**
      * Loads a {@link com.typesafe.config.Config} from a specified {@link java.io.File}.
      * Creates the file with the default values if it does not exist.
@@ -30,9 +33,14 @@ public class ConfigUtils {
         Config defaults = ConfigFactory.parseResources(loader, resource);
         Config config = ConfigFactory.parseFile(file).withFallback(defaults);
 
-        ConfigRenderOptions renderOptions = ConfigRenderOptions.defaults().setJson(false).setOriginComments(false);
+        save(config, file);
+
+        return config;
+    }
+
+    public static void save(Config config, File file) throws FileNotFoundException {
         try (PrintWriter printWriter = new PrintWriter(file)) {
-            String rendered = config.root().render(renderOptions);
+            String rendered = config.root().render(RENDER_OPTIONS);
             String[] lines = rendered.split(System.lineSeparator());
 
             // Only indent two spaces
@@ -52,6 +60,5 @@ public class ConfigUtils {
 
             printWriter.write(StringUtils.join(lines, System.lineSeparator()));
         }
-        return config;
     }
 }

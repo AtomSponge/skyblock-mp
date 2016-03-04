@@ -21,11 +21,15 @@ import java.util.concurrent.Executors;
  */
 @RequiredArgsConstructor
 public class DatabaseManager {
+    private static final int CURRENT_DATABASE_VERSION = 1;
+
     @Getter(AccessLevel.PACKAGE)
     private final SkyblockMp mod;
     @Getter
     private ExecutorService executorService;
     private HikariDataSource dataSource;
+    @Getter
+    private boolean updated = false;
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
@@ -49,7 +53,7 @@ public class DatabaseManager {
         return context;
     }
 
-    public void initialize() {
+    public void initialize() throws Exception {
         mod.getLogger().info("Initializing database connection pool");
         if (mod.getConfig().getString("database.connection.password").trim().isEmpty()) {
             mod.getLogger().warn("Database password is empty!");
@@ -57,6 +61,9 @@ public class DatabaseManager {
 
         dataSource = new HikariDataSource(configure());
         executorService = Executors.newFixedThreadPool(mod.getConfig().getInt("database.executor-threads"), new ThreadFactoryBuilder().setNameFormat("SkyblockMp Database Thread #%1$d").build());
+
+        DatabaseUpdater updater = new DatabaseUpdater(this);
+        updater.updateDatabase();
     }
 
     public void shutdown() {
