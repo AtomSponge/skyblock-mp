@@ -42,8 +42,15 @@ minecraft {
 }
 
 configurations {
+    provided
     shade
-    compile.extendsFrom shade
+    compile.extendsFrom provided, shade
+}
+
+repositories {
+    maven {
+        url 'http://maven.sk89q.com/artifactory/repo/'
+    }
 }
 
 dependencies {
@@ -52,6 +59,7 @@ dependencies {
     // I'd use slf4j-log4j12, but apparently Forge seems to be using an old version of log4j...
     shade group: 'org.slf4j', name: 'slf4j-simple', version: '1.7.18'
     shade group: 'com.h2database', name: 'h2', version: '1.4.191'
+    provided group: 'com.sk89q.worldedit', name: 'worldedit-forge-mc1.7.10', version: '6.1.1-SNAPSHOT'
 }
 
 processResources {
