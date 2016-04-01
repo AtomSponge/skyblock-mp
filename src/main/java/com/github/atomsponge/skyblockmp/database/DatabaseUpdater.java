@@ -3,7 +3,6 @@ package com.github.atomsponge.skyblockmp.database;
 import com.github.atomsponge.skyblockmp.database.transaction.Transaction;
 import com.github.atomsponge.skyblockmp.database.transaction.TransactionCallback;
 import com.github.atomsponge.skyblockmp.util.ConfigUtils;
-import com.github.atomsponge.skyblockmp.util.DatabaseUtils;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigValueFactory;
 import lombok.RequiredArgsConstructor;
@@ -74,15 +73,11 @@ class DatabaseUpdater {
         databaseManager.createTransaction(new Transaction() {
             @Override
             public void execute(DatabaseTransaction context, Connection connection) throws SQLException {
-                Statement statement = null;
-                try {
-                    statement = connection.createStatement();
+                try (Statement statement = connection.createStatement()) {
                     for (String statementString : statements) {
                         statement.addBatch(statementString);
                     }
                     statement.executeBatch();
-                } finally {
-                    DatabaseUtils.closeAll(statement);
                 }
             }
         }, new TransactionCallback() {

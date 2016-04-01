@@ -21,8 +21,16 @@ public class DatabaseTransaction {
 
     @Getter
     private final boolean autoClose;
-    @Getter
     private boolean successful;
+
+    public boolean wasSuccessful() {
+        // Unfortunately, we can't rename lombok getters :(
+        return successful;
+    }
+
+    public void fail() {
+        this.successful = false;
+    }
 
     void execute() {
         Connection connection = null;
@@ -55,9 +63,5 @@ public class DatabaseTransaction {
                 callback.success();
             }
         }
-    }
-
-    public void fail() {
-        this.successful = false;
     }
 }
