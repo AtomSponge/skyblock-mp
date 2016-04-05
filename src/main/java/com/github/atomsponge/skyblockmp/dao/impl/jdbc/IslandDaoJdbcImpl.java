@@ -24,10 +24,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author AtomSponge
  */
 public class IslandDaoJdbcImpl extends DaoImpl implements IslandDao {
-    public static final String SQL_SELECT_ALL = "SELECT id, pos_x, pos_z, owner, offset_x, offset_y, offset_z FROM island";
-    public static final String SQL_SELECT_LATEST_POS = "SELECT pos_x, pos_z FROM island ORDER BY id DESC LIMIT 1";
-    public static final String SQL_UPDATE = "UPDATE island SET pos_x = ?, pos_z = ?, offset_x = ?, offset_y = ?, offset_z = ?, owner = ? WHERE id = ?";
-    public static final String SQL_INSERT = "INSERT INTO island (owner, pos_x, pos_z, offset_x, offset_y, offset_z) VALUES (?, ?, ?, ?, ?, ?)";
+    private static final String SQL_SELECT_ALL = "SELECT id, pos_x, pos_z, owner, offset_x, offset_y, offset_z FROM island";
+    private static final String SQL_SELECT_LATEST_POS = "SELECT pos_x, pos_z FROM island ORDER BY id DESC LIMIT 1";
+    private static final String SQL_UPDATE = "UPDATE island SET pos_x = ?, pos_z = ?, offset_x = ?, offset_y = ?, offset_z = ?, owner = ? WHERE id = ?";
+    private static final String SQL_INSERT = "INSERT INTO island (owner, pos_x, pos_z, offset_x, offset_y, offset_z) VALUES (?, ?, ?, ?, ?, ?)";
 
     public IslandDaoJdbcImpl(SkyblockMp mod) {
         super(mod);

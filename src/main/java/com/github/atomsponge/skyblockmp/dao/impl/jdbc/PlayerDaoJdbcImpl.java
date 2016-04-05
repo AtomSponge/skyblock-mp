@@ -23,9 +23,9 @@ import java.util.UUID;
  * @author AtomSponge
  */
 public class PlayerDaoJdbcImpl extends DaoImpl implements PlayerDao {
-    public static final String SQL_SELECT_BY_UUID = "SELECT id, last_username, default_island FROM player WHERE uuid = ?";
-    public static final String SQL_INSERT = "INSERT INTO player (uuid, last_username) VALUES (?, ?)";
-    public static final String SQL_UPDATE = "UPDATE player SET uuid = ?, last_username = ?, default_island = ? WHERE id = ?";
+    private static final String SQL_SELECT_BY_UUID = "SELECT id, last_username, default_island FROM player WHERE uuid = ?";
+    private static final String SQL_INSERT = "INSERT INTO player (uuid, last_username) VALUES (?, ?)";
+    private static final String SQL_UPDATE = "UPDATE player SET uuid = ?, last_username = ?, default_island = ? WHERE id = ?";
 
     public PlayerDaoJdbcImpl(SkyblockMp mod) {
         super(mod);
