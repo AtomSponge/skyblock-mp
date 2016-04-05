@@ -1,22 +1,20 @@
 package com.github.atomsponge.skyblockmp;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import lombok.AllArgsConstructor;
-import net.minecraftforge.common.MinecraftForge;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author AtomSponge
  */
 public class Scheduler {
-    private final List<ScheduledTask> scheduledTasks = new ArrayList<>();
+    private final List<ScheduledTask> scheduledTasks = new CopyOnWriteArrayList<>();
+    private final List<ScheduledTask> toRemove = new ArrayList<>();
 
     public Scheduler() {
         FMLCommonHandler.instance().bus().register(this);
@@ -26,17 +24,22 @@ public class Scheduler {
         scheduledTasks.add(new ScheduledTask(ticks, runnable));
     }
 
+    // ToDo: Find a better way to execute things delayed on the main thread
+
     @SubscribeEvent
     public void onTick(TickEvent.ServerTickEvent event) {
         if (!scheduledTasks.isEmpty()) {
-            for (Iterator<ScheduledTask> iterator = scheduledTasks.iterator(); iterator.hasNext();) {
-                ScheduledTask task = iterator.next();
-
+            for (ScheduledTask task : scheduledTasks) {
                 task.remainingTicks--;
                 if (task.remainingTicks <= 0) {
                     task.runnable.run();
-                    iterator.remove();
+                    toRemove.add(task);
                 }
+            }
+
+            if (!toRemove.isEmpty()) {
+                scheduledTasks.removeAll(toRemove);
+                toRemove.clear();
             }
         }
     }
