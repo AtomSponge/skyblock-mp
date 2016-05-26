@@ -1,0 +1,7 @@
+CREATE TABLE island_member (
+  island_id INT NOT NULL,
+  player_id INT NOT NULL,
+  joined TIMESTAMP NOT NULL             DEFAULT CURRENT_TIMESTAMP(),
+  FOREIGN KEY (island_id) REFERENCES island (id)  ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (player_id) REFERENCES player (id) ON UPDATE CASCADE ON DELETE CASCADE
+);

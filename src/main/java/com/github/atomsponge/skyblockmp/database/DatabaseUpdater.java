@@ -22,7 +22,7 @@ import java.util.List;
  */
 @RequiredArgsConstructor
 class DatabaseUpdater {
-    private static final int CURRENT_DATABASE_VERSION = 1;
+    private static final int CURRENT_DATABASE_VERSION = 2;
 
     private final DatabaseManager databaseManager;
 

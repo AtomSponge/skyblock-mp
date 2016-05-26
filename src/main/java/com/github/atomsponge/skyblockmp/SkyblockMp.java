@@ -1,5 +1,6 @@
 package com.github.atomsponge.skyblockmp;
 
+import com.github.atomsponge.skyblockmp.command.IslandCommand;
 import com.github.atomsponge.skyblockmp.dao.impl.DaoManager;
 import com.github.atomsponge.skyblockmp.dao.impl.jdbc.IslandDaoJdbcImpl;
 import com.github.atomsponge.skyblockmp.dao.impl.jdbc.PlayerDaoJdbcImpl;
@@ -21,10 +22,12 @@ import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartedEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
 import lombok.Getter;
+import net.minecraft.command.ServerCommandManager;
 import net.minecraftforge.common.DimensionManager;
 import org.apache.logging.log4j.Logger;
 
@@ -84,6 +87,12 @@ public class SkyblockMp {
     @EventHandler
     public void onInit(FMLInitializationEvent event) {
         registerWorldProviders();
+    }
+
+    @EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        ServerCommandManager commandManager = (ServerCommandManager) event.getServer().getCommandManager();
+        commandManager.registerCommand(new IslandCommand(this));
     }
 
     @EventHandler

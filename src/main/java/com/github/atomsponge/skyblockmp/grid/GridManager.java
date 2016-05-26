@@ -98,6 +98,7 @@ public class GridManager {
 
         try {
             islandDao.insertIsland(island);
+            islandDao.insertIslandMember(island, playerModel);
         } catch (DaoException e) {
             mod.getLogger().error("Failed to create island", e.getCause());
             player.addChatMessage(new ChatComponentText(EnumChatFormatting.RED + "Failed to create your island. Please contact an administrator."));

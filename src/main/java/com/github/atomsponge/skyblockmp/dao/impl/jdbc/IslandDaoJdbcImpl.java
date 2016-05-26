@@ -9,6 +9,8 @@ import com.github.atomsponge.skyblockmp.database.transaction.Transaction;
 import com.github.atomsponge.skyblockmp.database.transaction.TransactionCallback;
 import com.github.atomsponge.skyblockmp.grid.Position;
 import com.github.atomsponge.skyblockmp.model.Island;
+import com.github.atomsponge.skyblockmp.model.Player;
+import com.github.atomsponge.skyblockmp.util.UuidUtils;
 import com.sk89q.worldedit.Vector;
 
 import java.sql.Connection;
@@ -18,6 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -28,6 +31,10 @@ public class IslandDaoJdbcImpl extends DaoImpl implements IslandDao {
     private static final String SQL_SELECT_LATEST_POS = "SELECT pos_x, pos_z FROM island ORDER BY id DESC LIMIT 1";
     private static final String SQL_UPDATE = "UPDATE island SET pos_x = ?, pos_z = ?, offset_x = ?, offset_y = ?, offset_z = ?, owner = ? WHERE id = ?";
     private static final String SQL_INSERT = "INSERT INTO island (owner, pos_x, pos_z, offset_x, offset_y, offset_z) VALUES (?, ?, ?, ?, ?, ?)";
+
+    private static final String SQL_SELECT_MEMBERS_BY_ISLAND = "SELECT id, uuid, last_username, default_island FROM island_member JOIN player ON player.id = island_member.player_id WHERE island_id = ?";
+    private static final String SQL_INSERT_MEMBER = "INSERT INTO island_member (island_id, player_id) VALUES (?, ?)";
+    private static final String SQL_DELETE_MEMBER = "DELETE FROM island_member WHERE island_id = ? AND player_id = ?";
 
     public IslandDaoJdbcImpl(SkyblockMp mod) {
         super(mod);
@@ -125,6 +132,71 @@ public class IslandDaoJdbcImpl extends DaoImpl implements IslandDao {
                     statement.setDouble(5, island.getSpawnOffset().getZ());
                     statement.setInt(6, island.getOwner());
                     statement.setInt(7, island.getId());
+                    statement.executeUpdate();
+                }
+            }
+        }, new TransactionCallback() {
+            @Override
+            public void failure(Throwable throwable) {
+                throw new DaoException(throwable);
+            }
+        });
+        return transaction.wasSuccessful();
+    }
+
+    @Override
+    public List<Player> findMembersByIsland(final Island island) throws DaoException {
+        final List<Player> players = new ArrayList<>();
+        getDatabaseManager().createTransaction(new Transaction() {
+            @Override
+            public void execute(DatabaseTransaction context, Connection connection) throws SQLException {
+                try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_MEMBERS_BY_ISLAND)) {
+                    statement.setInt(1, island.getId());
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        while (resultSet.next()) {
+                            Player player = new Player(resultSet.getInt(1), UuidUtils.getUuidFromBytes(resultSet.getBytes(2)), resultSet.getString(3), resultSet.getInt(4));
+                            players.add(player);
+                        }
+                    }
+                }
+            }
+        }, new TransactionCallback() {
+            @Override
+            public void failure(Throwable throwable) {
+                throw new DaoException(throwable);
+            }
+        });
+        return players;
+    }
+
+    @Override
+    public boolean insertIslandMember(final Island island, final Player member) throws DaoException {
+        DatabaseTransaction transaction = getDatabaseManager().createTransaction(new Transaction() {
+            @Override
+            public void execute(DatabaseTransaction context, Connection connection) throws SQLException {
+                try (PreparedStatement statement = connection.prepareStatement(SQL_INSERT_MEMBER)) {
+                    statement.setInt(1, island.getId());
+                    statement.setInt(2, member.getId());
+                    statement.executeUpdate();
+                }
+            }
+        }, new TransactionCallback() {
+            @Override
+            public void failure(Throwable throwable) {
+                throw new DaoException(throwable);
+            }
+        });
+        return transaction.wasSuccessful();
+    }
+
+    @Override
+    public boolean removeIslandMember(final Island island, final Player member) throws DaoException {
+        DatabaseTransaction transaction = getDatabaseManager().createTransaction(new Transaction() {
+            @Override
+            public void execute(DatabaseTransaction context, Connection connection) throws SQLException {
+                try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE_MEMBER)) {
+                    statement.setInt(1, island.getId());
+                    statement.setInt(2, member.getId());
                     statement.executeUpdate();
                 }
             }
